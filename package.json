@@ -1,0 +1,14 @@
+{
+  "name": "game-web-drive-proxy",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Game web nds,gba,psx....",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

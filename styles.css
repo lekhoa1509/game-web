@@ -1,0 +1,777 @@
+:root {
+  /* Subtle retro-dark palette (soft, not flashy) */
+  --bg: #0b0f16;
+  --panel: #121a26;
+  --panel2: #0f1722;
+  --text: #e8edf6;
+  --muted: #a7b2c7;
+  --border: #243149;
+  --accent: #78b7ff;
+
+  /* UI scale (used to mimic browser zoom) */
+  --ui-scale: 0.8;
+
+  /* Layout primitives */
+  --radius-lg: 14px;
+  --radius-md: 12px;
+  --radius-sm: 10px;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  color-scheme: dark;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Platforms: default UI scale similar to browser zoom 80% */
+body.platform {
+  zoom: var(--ui-scale);
+  /* Keep the scaled app filling the viewport (avoid empty band at bottom) */
+  height: 100vh;
+}
+
+body.platform .app {
+  height: calc(100vh / var(--ui-scale));
+}
+
+/* But when fullscreen, scale back to 100% */
+body.platform .isFullscreen {
+  zoom: 1;
+}
+
+/* Links */
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Better default focus */
+:focus-visible {
+  outline: 2px solid rgba(120, 183, 255, 0.55);
+  outline-offset: 2px;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  height: 100vh;
+}
+
+/* NDS: slightly more compact sidebar + tighter main */
+.platform-nds .app {
+  grid-template-columns: 320px 1fr;
+}
+
+.sidebar {
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: grid;
+  grid-template-rows: auto auto auto 1fr auto auto;
+  min-width: 320px;
+}
+
+.sidebar__header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.platform-nds .sidebar__header {
+  padding: 14px;
+}
+
+.title {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+button {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
+}
+
+button:hover {
+  border-color: rgba(120, 183, 255, 0.35);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sidebar__meta {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.platform-nds .sidebar__meta {
+  padding: 10px 14px;
+}
+
+.sidebar__search {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.platform-nds .sidebar__search {
+  padding: 10px 14px;
+}
+
+.search {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--text);
+  outline: none;
+}
+
+.search:focus {
+  border-color: rgba(120, 183, 255, 0.45);
+}
+
+.search::placeholder {
+  color: var(--muted);
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.perfRow {
+  margin-top: 2px;
+}
+
+.perfRow .value {
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
+    monospace;
+  color: rgba(232, 237, 246, 0.92);
+}
+
+.label {
+  width: 92px;
+  color: var(--muted);
+}
+
+.value {
+  color: var(--text);
+}
+
+.list {
+  overflow: auto;
+  padding: 8px;
+  position: relative;
+}
+
+/* Scrollbars (subtle) */
+.list {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 183, 255, 0.25) rgba(0, 0, 0, 0.15);
+}
+
+.list::-webkit-scrollbar {
+  width: 10px;
+}
+
+.list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.12);
+  border-left: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.list::-webkit-scrollbar-thumb {
+  background: rgba(120, 183, 255, 0.18);
+  border: 1px solid rgba(120, 183, 255, 0.15);
+  border-radius: 999px;
+}
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.pageBtn {
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.pageBtn:hover {
+  border-color: rgba(120, 183, 255, 0.35);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.pageBtn[aria-current="page"] {
+  border-color: rgba(106, 166, 255, 0.5);
+  background: rgba(106, 166, 255, 0.08);
+}
+
+.pageEllipsis {
+  padding: 6px 8px;
+  color: var(--muted);
+  border: 1px solid transparent;
+}
+
+.listInner {
+  position: relative;
+  width: 100%;
+}
+
+.item {
+  width: 100%;
+  text-align: left;
+  padding: 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  height: 64px;
+  overflow: hidden;
+}
+
+.itemRow {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.itemRow__play {
+  flex: 1;
+}
+
+.itemRow__dl {
+  width: 56px;
+  height: 64px;
+  padding: 0;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text);
+  display: grid;
+  place-items: center;
+}
+
+.itemRow__dl:hover {
+  border-color: var(--border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.itemRow__dl--done {
+  border-color: rgba(106, 166, 255, 0.5);
+  background: rgba(106, 166, 255, 0.12);
+  color: var(--accent);
+}
+
+.item__title {
+  display: block;
+  font-size: 14px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item:hover {
+  border-color: var(--border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.item--active {
+  border-color: rgba(106, 166, 255, 0.5);
+  background: rgba(106, 166, 255, 0.08);
+}
+
+.item__sub {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar__footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.main {
+  display: grid;
+  /* Keep the play area tight to the screen size (avoid huge black empty space) */
+  grid-template-rows: auto auto auto;
+  padding: 16px;
+  gap: 12px;
+}
+
+.platform-nds .main {
+  padding: 14px;
+  gap: 10px;
+  /* Use the available height to avoid a big empty area below */
+  grid-template-rows: 1fr auto;
+}
+
+.screenWrap {
+  display: grid;
+  place-items: center;
+  background: #000;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  position: relative;
+  overflow: hidden;
+  /* In CSS grid, items stretch by default; avoid stretching */
+  justify-self: center;
+  align-self: start;
+  width: fit-content;
+  height: fit-content;
+}
+
+/* NDS: keep play area + bar aligned and less "floating" */
+.platform-nds .screenWrap {
+  width: 100%;
+  max-width: none;
+  padding: 10px;
+  /* Let the play area occupy remaining height */
+  height: auto;
+  align-self: stretch;
+  justify-self: stretch;
+}
+
+/* Subtle scanline feel (very light) */
+.screenWrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0.02) 1px,
+    rgba(0, 0, 0, 0) 3px,
+    rgba(0, 0, 0, 0) 6px
+  );
+  opacity: 0.18;
+  z-index: 1;
+}
+
+/* === Loading overlay (ROM download progress) === */
+
+.loadingOverlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 6;
+  pointer-events: none;
+}
+
+.loadingOverlay[hidden] {
+  display: none;
+}
+
+.loadingOverlay__panel {
+  width: min(420px, calc(100% - 32px));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(15, 17, 21, 0.9);
+  padding: 14px;
+}
+
+.loadingOverlay__title {
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+
+.loadingOverlay__bar {
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.loadingOverlay__barFill {
+  height: 100%;
+  width: 0%;
+  background: rgba(106, 166, 255, 0.7);
+}
+
+.loadingOverlay__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* === Touch controls (mobile/iPad) === */
+
+.touchControls {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  display: none;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  z-index: 3;
+  touch-action: none;
+  user-select: none;
+}
+
+.touchControls__left,
+.touchControls__right {
+  display: flex;
+  align-items: flex-end;
+}
+
+.touchControls__left {
+  justify-content: flex-start;
+}
+
+.touchControls__right {
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dpad {
+  display: grid;
+  grid-template-columns: 56px 56px 56px;
+  grid-template-rows: 56px 56px 56px;
+  gap: 8px;
+}
+
+.touchSpacer {
+  width: 56px;
+  height: 56px;
+}
+
+.touchBtn {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  padding: 0;
+  font-weight: 700;
+  touch-action: none;
+}
+
+.touchBtn--wide {
+  width: 88px;
+}
+
+.touchBtn--active {
+  border-color: rgba(106, 166, 255, 0.65);
+  background: rgba(106, 166, 255, 0.12);
+}
+
+.touchAB {
+  display: grid;
+  grid-template-columns: 56px 56px;
+  grid-template-rows: 56px 56px;
+  gap: 8px;
+}
+
+.touchRow {
+  display: flex;
+  gap: 8px;
+}
+
+@media (pointer: coarse) {
+  .touchControls {
+    display: grid;
+  }
+}
+
+.screenBar {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  gap: 8px;
+  z-index: 5;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.35);
+  pointer-events: auto;
+}
+
+.screenBar button {
+  padding: 7px 10px;
+}
+
+.screenBar button:disabled {
+  opacity: 0.7;
+}
+
+.isFullscreen {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+.isFullscreen .touchControls {
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+}
+
+.isFullscreen #screen,
+.isFullscreen #canvas {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+}
+
+#screen,
+#canvas {
+  width: min(1200px, calc(100vw - 420px));
+  height: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background: #000;
+  border-radius: 10px;
+  z-index: 2;
+}
+
+/* PSX: upscale nicer (4:3 @ 1080p => 1440x1080) */
+.platform-psx #screen {
+  /* Keep the play area around laptop-HD height so UI below stays visible */
+  width: min(1280px, calc(100vw - 420px));
+  max-height: min(760px, calc(100vh - 220px));
+  aspect-ratio: 4 / 3;
+  height: auto;
+  image-rendering: auto;
+}
+
+/* NDS (EmulatorJS): size the player area like other platforms */
+.platform-nds #player {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 560px;
+}
+
+.platform-nds #player,
+.platform-nds #player iframe,
+.platform-nds #player canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.platform-nds #player > * {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.nowPlaying {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  padding: 12px;
+}
+
+.platform-nds .nowPlaying {
+  width: 100%;
+  max-width: none;
+  justify-self: stretch;
+  padding: 10px 12px;
+}
+
+.platform-nds .nowPlaying .label {
+  width: 76px;
+}
+
+.notice {
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 12px;
+  color: var(--muted);
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+
+/* === Modal (Key settings) === */
+
+.modal[hidden] {
+  display: none;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 50;
+}
+
+.modal__panel {
+  width: min(560px, 92vw);
+  max-height: min(720px, 92vh);
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+.modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.modal__body {
+  padding: 12px 14px;
+}
+
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.keyList {
+  display: grid;
+  gap: 8px;
+}
+
+.keyRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel2);
+}
+
+.keyRow__label {
+  color: var(--text);
+}
+
+.keyRow__value {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 6px 8px;
+  border-radius: 8px;
+  min-width: 110px;
+  text-align: center;
+}
+
+.modal__note {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  min-height: 18px;
+}
+
+@media (max-width: 900px) {
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: 360px 1fr;
+  }
+
+  #screen {
+    width: min(92vw, 900px);
+  }
+
+  #canvas {
+    width: min(92vw, 900px);
+  }
+
+  .platform-nds .screenWrap {
+    width: 100%;
+  }
+
+  .platform-nds #player {
+    width: 100%;
+    height: 100%;
+    min-height: 420px;
+  }
+}

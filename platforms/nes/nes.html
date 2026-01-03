@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NES Web Player</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body class="platform platform-nes">
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar__header">
+        <h1 class="title">NES Web Player</h1>
+        <div class="controls">
+                    <a class="pageBtn" href="../../index.html" aria-label="Về trang chủ">← Home</a>
+          <button id="btnReload" type="button">Tải lại danh sách</button>
+          <button id="btnStop" type="button" disabled>Dừng</button>
+          <button id="btnKeySettings" type="button">Cài nút</button>
+          <button id="btnPickRomFolder" type="button">Chọn thư mục ROM</button>
+          <button id="btnDownloadRom" type="button" disabled>Tải ROM</button>
+        </div>
+      </div>
+
+      <div class="sidebar__meta">
+        <div class="row">
+          <span class="label">Nguồn:</span>
+          <span id="sourceStatus" class="value">Google Sheet</span>
+        </div>
+        <div class="row">
+          <span class="label">Trạng thái:</span>
+          <span id="status" class="value">Chưa tải</span>
+        </div>
+      </div>
+
+      <div class="sidebar__search">
+        <input id="search" class="search" type="search" placeholder="Tìm game theo tên..." autocomplete="off" />
+      </div>
+
+      <div id="gameList" class="list" aria-label="Danh sách game"></div>
+      <div id="pager" class="pager" aria-label="Phân trang"></div>
+
+      <div class="sidebar__footer">
+        <div id="keyHint" class="hint">Phím: ←→↑↓ | Z=A | X=B | Enter=Start | Shift=Select</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="screenWrap" id="screenWrap">
+        <div id="loadingOverlay" class="loadingOverlay" hidden>
+          <div class="loadingOverlay__panel">
+            <div id="loadingTitle" class="loadingOverlay__title">Đang tải...</div>
+            <div class="loadingOverlay__bar">
+              <div id="loadingBarFill" class="loadingOverlay__barFill"></div>
+            </div>
+            <div class="loadingOverlay__meta">
+              <div id="loadingMetaLeft">ROM</div>
+              <div id="loadingPct">0%</div>
+            </div>
+          </div>
+        </div>
+        <div class="screenBar">
+          <button id="btnSaveState" type="button" disabled>Save</button>
+          <button id="btnLoadState" type="button" disabled>Load</button>
+          <button id="btnFullscreen" type="button">Toàn màn</button>
+        </div>
+        <canvas id="screen" width="256" height="240"></canvas>
+      </div>
+      <input id="fileLoadState" type="file" accept=".state,application/octet-stream" hidden />
+      <div class="nowPlaying">
+        <div class="row">
+          <span class="label">Đang chơi:</span>
+          <span id="nowPlaying" class="value">(chưa chọn)</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="keySettingsModal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="keySettingsTitle">
+    <div class="modal__panel">
+      <div class="modal__header">
+        <h2 id="keySettingsTitle" class="modal__title">Cài đặt nút</h2>
+        <button id="btnKeySettingsClose" type="button">Đóng</button>
+      </div>
+
+      <div class="modal__body">
+        <div id="keySettingsList" class="keyList"></div>
+        <div id="keySettingsNote" class="modal__note"></div>
+      </div>
+
+      <div class="modal__actions">
+        <button id="btnKeySettingsReset" type="button">Mặc định</button>
+        <button id="btnKeySettingsSave" type="button">Lưu</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="https://unpkg.com/nostalgist"></script>
+  <script src="app.js"></script>
+</body>
+</html>

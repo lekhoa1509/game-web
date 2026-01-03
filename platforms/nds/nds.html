@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NDS Web Player</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body class="platform platform-nds">
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar__header">
+        <h1 class="title">NDS Web Player</h1>
+        <div class="controls">
+          <a class="pageBtn" href="../../index.html" aria-label="Về trang chủ">← Home</a>
+          <button id="btnReload" type="button">Tải lại danh sách</button>
+          <button id="btnStop" type="button" disabled>Dừng</button>
+          <button id="btnDownloadRom" type="button" disabled>Tải ROM</button>
+        </div>
+      </div>
+
+      <div class="sidebar__meta">
+        <div class="row">
+          <span class="label">Nguồn:</span>
+          <span id="sourceStatus" class="value">Google Sheet</span>
+        </div>
+        <div class="row">
+          <span class="label">Trạng thái:</span>
+          <span id="status" class="value">Chưa tải</span>
+        </div>
+      </div>
+
+      <div class="sidebar__search">
+        <input id="search" class="search" type="search" placeholder="Tìm game theo tên..." autocomplete="off" />
+      </div>
+
+      <div id="gameList" class="list" aria-label="Danh sách game"></div>
+      <div id="pager" class="pager" aria-label="Phân trang"></div>
+    </aside>
+
+    <main class="main">
+      <div class="screenWrap" id="screenWrap">
+        <div class="screenBar">
+          <button id="btnFullscreen" type="button">Toàn màn</button>
+        </div>
+        <div id="player"></div>
+      </div>
+      <div class="nowPlaying">
+        <div class="row">
+          <span class="label">Đang chơi:</span>
+          <span id="nowPlaying" class="value">(chưa chọn)</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="nds-app.js"></script>
+</body>
+</html>

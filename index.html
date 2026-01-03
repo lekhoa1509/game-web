@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game Web - Chọn hệ</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .home {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .homeCard {
+      width: min(720px, 92vw);
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .homeTitle {
+      margin: 0 0 6px;
+      font-size: 20px;
+      font-weight: 800;
+    }
+    .homeSub {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .platformGrid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .platformBtn {
+      display: grid;
+      gap: 6px;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      background: var(--panel2);
+      color: var(--text);
+      padding: 14px;
+      border-radius: 12px;
+    }
+    .platformName {
+      font-weight: 800;
+      font-size: 16px;
+    }
+    .platformDesc {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    @media (max-width: 700px) {
+      .platformGrid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="home">
+    <div class="homeCard">
+      <h1 class="homeTitle">Chọn hệ máy</h1>
+      <p class="homeSub">Chọn platform bạn muốn chơi.</p>
+
+      <div class="platformGrid" aria-label="Danh sách platform">
+        <a class="platformBtn" href="platforms/nes/nes.html">
+          <div class="platformName">NES</div>
+          <div class="platformDesc">Danh sách game từ Google Sheet + hỗ trợ Save/Load state.</div>
+        </a>
+        <a class="platformBtn" href="platforms/snes/snes.html">
+          <div class="platformName">SNES</div>
+          <div class="platformDesc">Chạy SNES với core <span style="color: var(--text)">snes9x</span>. Lọc theo cột Platform(s) nếu có.</div>
+        </a>
+        <a class="platformBtn" href="platforms/gba/gba.html">
+          <div class="platformName">GBA</div>
+          <div class="platformDesc">Chạy GBA với core <span style="color: var(--text)">mgba</span>. Lọc theo cột Platform(s) nếu có.</div>
+        </a>
+        <a class="platformBtn" href="platforms/psx/psx.html">
+          <div class="platformName">PSX (PS1)</div>
+          <div class="platformDesc">Chạy PS1 với core <span style="color: var(--text)">pcsx_rearmed</span>. Cần BIOS cho nhiều game.</div>
+        </a>
+        <a class="platformBtn" href="platforms/nds/nds.html">
+          <div class="platformName">NDS</div>
+          <div class="platformDesc">Chạy Nintendo DS bằng EmulatorJS. Cần ROM và thường cần BIOS/firmware (chọn từ máy).</div>
+        </a>
+        <a class="platformBtn" href="platforms/dos/dos.html">
+          <div class="platformName">Windows 95 (WASM)</div>
+          <div class="platformDesc">Chạy Windows 95 trong browser bằng js-dos v8 (DOSBox-X). Dùng bundle <span style="color: var(--text)">.jsdos</span> và chạy <span style="color: var(--text)">.EXE</span> bên trong Win95.</div>
+        </a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
