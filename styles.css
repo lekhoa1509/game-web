@@ -752,9 +752,28 @@ code {
 }
 
 @media (max-width: 900px) {
+  /* Mobile: avoid CSS zoom (can break viewport sizing on phones) */
+  body.platform {
+    zoom: 1;
+    height: auto;
+  }
+
+  body.platform .app {
+    height: auto;
+    min-height: 100vh;
+  }
+
   .app {
     grid-template-columns: 1fr;
-    grid-template-rows: 360px 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .sidebar {
+    min-width: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    /* Ensure the list area always has space on small screens */
+    grid-template-rows: auto auto auto minmax(180px, 42vh) auto auto;
   }
 
   #screen {
