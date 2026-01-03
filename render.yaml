@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: game-web
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      # Render sits behind a reverse proxy/load balancer.
+      - key: TRUST_PROXY
+        value: "1"

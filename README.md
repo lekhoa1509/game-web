@@ -69,6 +69,36 @@ Mặc định server chạy tại `http://localhost:5173` và serve luôn trang 
 
 Nếu bạn gặp lỗi `EADDRINUSE` (port 5173 đang bị dùng), hãy đổi `PORT` trong `.env` (ví dụ 5180) hoặc tắt tiến trình đang dùng port đó.
 
+## Deploy lên Render (Node.js) (khuyến nghị)
+
+Project này có `server.js` (Express) vừa serve static web vừa làm Drive proxy. Deploy lên Render được.
+
+### Cách 1: Deploy trực tiếp từ GitHub
+
+1. Vào Render → **New** → **Web Service** → chọn repo.
+2. Settings:
+
+- **Environment**: Node
+- **Build Command**: `npm install`
+- **Start Command**: `npm start`
+
+3. **Environment Variables** (Render → Environment):
+
+- `DRIVE_API_KEY`: API key của bạn (bắt buộc nếu dùng link folder/file Drive qua proxy)
+- `TRUST_PROXY=1` (khuyên dùng trên Render)
+- (khuyến nghị nếu deploy public) `ALLOWED_DRIVE_FOLDER_IDS=...` và/hoặc `ALLOWED_DRIVE_FILE_IDS=...`
+- (nếu frontend gọi khác domain) `ALLOWED_ORIGINS=https://<your-render-domain>`
+
+Lưu ý:
+
+- Render tự set biến môi trường `PORT`. Server đã đọc `process.env.PORT` nên không cần hard-code port.
+- Không commit `.env` lên GitHub. Chỉ set env vars trên Render.
+
+### Cách 2: Deploy bằng Blueprint
+
+Repo có sẵn file `render.yaml`. Trên Render chọn **New** → **Blueprint** để import.
+Sau đó nhớ set `DRIVE_API_KEY` trong Environment Variables.
+
 ### 2) Cấu hình trên client
 
 Mặc định đã bật proxy:
