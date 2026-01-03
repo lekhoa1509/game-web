@@ -1712,6 +1712,182 @@
     els.btnFullscreen.addEventListener("click", () => enterFullscreen());
   }
 
+  // === Touch controls (mobile/iPad) ===
+
+  function retroarchKeyToBrowserKey(raKey) {
+    const k = String(raKey || "").trim();
+    if (!k) return "";
+    const s = k.toLowerCase();
+
+    if (s === "up") return "ArrowUp";
+    if (s === "down") return "ArrowDown";
+    if (s === "left") return "ArrowLeft";
+    if (s === "right") return "ArrowRight";
+
+    if (s === "enter") return "Enter";
+    if (s === "shift") return "Shift";
+    if (s === "space") return " ";
+    if (s === "escape") return "Escape";
+    if (s === "tab") return "Tab";
+    if (s === "backspace") return "Backspace";
+    if (s === "delete") return "Delete";
+    if (s === "ctrl" || s === "control") return "Control";
+    if (s === "alt") return "Alt";
+    if (s === "meta") return "Meta";
+
+    // Letters/digits
+    if (s.length === 1) return s;
+    return k;
+  }
+
+  const touchPressedKeys = new Set();
+
+  function dispatchSyntheticKey(type, key) {
+    if (!key) return;
+    const ev = new KeyboardEvent(type, {
+      key,
+      bubbles: true,
+      cancelable: true,
+    });
+    document.dispatchEvent(ev);
+  }
+
+  function pressBrowserKey(key) {
+    if (!key || touchPressedKeys.has(key)) return;
+    touchPressedKeys.add(key);
+    dispatchSyntheticKey("keydown", key);
+  }
+
+  function releaseBrowserKey(key) {
+    if (!key || !touchPressedKeys.has(key)) return;
+    touchPressedKeys.delete(key);
+    dispatchSyntheticKey("keyup", key);
+  }
+
+  function bindTouchButton(btn, getRetroarchKey) {
+    let activePointerId = null;
+    let activeBrowserKey = "";
+
+    const onDown = (e) => {
+      if (!e || (e.pointerType && e.pointerType === "mouse")) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      try {
+        btn.setPointerCapture(e.pointerId);
+      } catch {
+        // ignore
+      }
+
+      activePointerId = e.pointerId;
+      const raKey = getRetroarchKey();
+      activeBrowserKey = retroarchKeyToBrowserKey(raKey);
+      pressBrowserKey(activeBrowserKey);
+      btn.classList.add("touchBtn--active");
+    };
+
+    const onUp = (e) => {
+      if (activePointerId == null) return;
+      if (e && e.pointerId != null && e.pointerId !== activePointerId) return;
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      releaseBrowserKey(activeBrowserKey);
+      activePointerId = null;
+      activeBrowserKey = "";
+      btn.classList.remove("touchBtn--active");
+    };
+
+    btn.addEventListener("pointerdown", onDown);
+    btn.addEventListener("pointerup", onUp);
+    btn.addEventListener("pointercancel", onUp);
+    btn.addEventListener("lostpointercapture", onUp);
+  }
+
+  function ensureCartTouchControls() {
+    if (!els.screenWrap) return;
+    if (els.screenWrap.querySelector(".touchControls")) return;
+
+    const root = document.createElement("div");
+    root.className = "touchControls";
+
+    if (system.id === "snes") {
+      root.innerHTML = `
+        <div class="touchControls__left">
+          <div class="dpad" aria-label="D-pad">
+            <span class="touchSpacer"></span>
+            <button type="button" class="touchBtn" data-action="up">↑</button>
+            <span class="touchSpacer"></span>
+            <button type="button" class="touchBtn" data-action="left">←</button>
+            <span class="touchSpacer"></span>
+            <button type="button" class="touchBtn" data-action="right">→</button>
+            <span class="touchSpacer"></span>
+            <button type="button" class="touchBtn" data-action="down">↓</button>
+            <span class="touchSpacer"></span>
+          </div>
+        </div>
+        <div class="touchControls__right">
+          <div class="touchRow">
+            <button type="button" class="touchBtn touchBtn--wide" data-action="l">L</button>
+            <button type="button" class="touchBtn touchBtn--wide" data-action="r">R</button>
+          </div>
+          <div class="touchAB" aria-label="Buttons">
+            <button type="button" class="touchBtn" data-action="y">Y</button>
+            <button type="button" class="touchBtn" data-action="x">X</button>
+            <button type="button" class="touchBtn" data-action="b">B</button>
+            <button type="button" class="touchBtn" data-action="a">A</button>
+          </div>
+          <div class="touchRow">
+            <button type="button" class="touchBtn touchBtn--wide" data-action="select">Select</button>
+            <button type="button" class="touchBtn touchBtn--wide" data-action="start">Start</button>
+          </div>
+        </div>
+      `;
+    } else {
+      // GBA
+      root.innerHTML = `
+        <div class="touchControls__left">
+          <div class="dpad" aria-label="D-pad">
+            <span class="touchSpacer"></span>
+            <button type="button" class="touchBtn" data-action="up">↑</button>
+            <span class="touchSpacer"></span>
+            <button type="button" class="touchBtn" data-action="left">←</button>
+            <span class="touchSpacer"></span>
+            <button type="button" class="touchBtn" data-action="right">→</button>
+            <span class="touchSpacer"></span>
+            <button type="button" class="touchBtn" data-action="down">↓</button>
+            <span class="touchSpacer"></span>
+          </div>
+        </div>
+        <div class="touchControls__right">
+          <div class="touchRow">
+            <button type="button" class="touchBtn touchBtn--wide" data-action="l">L</button>
+            <button type="button" class="touchBtn touchBtn--wide" data-action="r">R</button>
+          </div>
+          <div class="touchRow" aria-label="Buttons">
+            <button type="button" class="touchBtn" data-action="b">B</button>
+            <button type="button" class="touchBtn" data-action="a">A</button>
+          </div>
+          <div class="touchRow">
+            <button type="button" class="touchBtn touchBtn--wide" data-action="select">Select</button>
+            <button type="button" class="touchBtn touchBtn--wide" data-action="start">Start</button>
+          </div>
+        </div>
+      `;
+    }
+
+    els.screenWrap.appendChild(root);
+
+    const buttons = root.querySelectorAll("button[data-action]");
+    buttons.forEach((btn) => {
+      const action = btn.getAttribute("data-action");
+      bindTouchButton(btn, () => String(keybinds[action] || ""));
+    });
+  }
+
+  ensureCartTouchControls();
+
   startPerfPanel();
 
   // === Boot ===
