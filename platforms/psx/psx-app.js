@@ -20,15 +20,14 @@
   const SHEET_ID = "1K2gbc06V4UxFcZWOZGk1ML7zUUc6-vzT_CaPB2Cx4Q4";
   const SHEET_TAB_NAME = "Sheet1";
 
-  // Drive API key (client-side).
-  // Dán key của bạn vào đây nếu muốn chạy kiểu cũ (không cần server.js proxy).
-  // Lưu ý: ai mở web cũng có thể xem được key này trong DevTools.
-  const DRIVE_API_KEY = "REDACTED";
+  // Drive API key (client-side) — DO NOT put secrets here.
+  // Use server.js proxy instead and set DRIVE_API_KEY in .env / env variables.
+  const DRIVE_API_KEY = "";
 
-  // Old mode default: call Drive API directly from browser.
-  // - false: browser dùng Drive API trực tiếp (cần DRIVE_API_KEY)
+  // Default: use server.js proxy (/api/drive/*) to keep API key private.
+  // - false: browser gọi Drive API trực tiếp (KHÔNG khuyến nghị vì lộ key)
   // - true: đi qua server.js proxy (/api/drive/*)
-  const USE_DRIVE_PROXY = false;
+  const USE_DRIVE_PROXY = true;
   const DRIVE_PROXY_BASE = ""; // same-origin (e.g. "" or "http://localhost:5173")
 
   // Client-side Drive API fallback (only used when USE_DRIVE_PROXY=false)

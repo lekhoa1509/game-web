@@ -6,11 +6,12 @@
   const SHEET_ID = "1K2gbc06V4UxFcZWOZGk1ML7zUUc6-vzT_CaPB2Cx4Q4";
   const SHEET_TAB_NAME = "Sheet1";
 
-  // Drive API key (client-side)
-  const DRIVE_API_KEY = "REDACTED";
+  // Drive API key (client-side) — DO NOT put secrets here.
+  // Use server.js proxy instead and set DRIVE_API_KEY in .env / env variables.
+  const DRIVE_API_KEY = "";
 
-  // Old mode default: call Drive API directly from browser.
-  const USE_DRIVE_PROXY = false;
+  // Default: use server.js proxy (/api/drive/*) to keep API key private.
+  const USE_DRIVE_PROXY = true;
   const DRIVE_PROXY_BASE = ""; // same-origin (e.g. "" or "http://localhost:5173")
 
   const USE_DRIVE_API = true;
