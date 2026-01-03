@@ -11,6 +11,7 @@
     btnStop: document.getElementById("btnStop"),
     status: document.getElementById("status"),
     mount: document.getElementById("dos"),
+    screen: document.querySelector(".screen"),
   };
 
   /** @type {any} */
@@ -19,6 +20,117 @@
   let bundleObjectUrl = "";
   /** @type {{mode: "file" | "url", label: string, url?: string} | null} */
   let activeSource = null;
+
+  // === Touch controls (mobile/iPad) ===
+
+  const touchPressedKeys = new Set();
+
+  function dispatchSyntheticKey(type, key) {
+    if (!key) return;
+    const ev = new KeyboardEvent(type, {
+      key,
+      bubbles: true,
+      cancelable: true,
+    });
+    document.dispatchEvent(ev);
+  }
+
+  function pressBrowserKey(key) {
+    if (!key || touchPressedKeys.has(key)) return;
+    touchPressedKeys.add(key);
+    dispatchSyntheticKey("keydown", key);
+  }
+
+  function releaseBrowserKey(key) {
+    if (!key || !touchPressedKeys.has(key)) return;
+    touchPressedKeys.delete(key);
+    dispatchSyntheticKey("keyup", key);
+  }
+
+  function bindTouchButton(btn, key) {
+    let activePointerId = null;
+
+    const onDown = (e) => {
+      if (!e || (e.pointerType && e.pointerType === "mouse")) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      try {
+        btn.setPointerCapture(e.pointerId);
+      } catch {
+        // ignore
+      }
+
+      activePointerId = e.pointerId;
+      pressBrowserKey(key);
+      btn.classList.add("touchBtn--active");
+    };
+
+    const onUp = (e) => {
+      if (activePointerId == null) return;
+      if (e && e.pointerId != null && e.pointerId !== activePointerId) return;
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      releaseBrowserKey(key);
+      activePointerId = null;
+      btn.classList.remove("touchBtn--active");
+    };
+
+    btn.addEventListener("pointerdown", onDown);
+    btn.addEventListener("pointerup", onUp);
+    btn.addEventListener("pointercancel", onUp);
+    btn.addEventListener("lostpointercapture", onUp);
+  }
+
+  function ensureDosTouchControls() {
+    if (!els.screen) return;
+    if (els.screen.querySelector(".touchControls")) return;
+
+    const root = document.createElement("div");
+    root.className = "touchControls";
+    root.setAttribute("aria-label", "Touch controls");
+    root.innerHTML = `
+      <div class="touchControls__left">
+        <div class="dpad" aria-label="D-pad">
+          <span class="touchSpacer"></span>
+          <button type="button" class="touchBtn" data-action="up">↑</button>
+          <span class="touchSpacer"></span>
+          <button type="button" class="touchBtn" data-action="left">←</button>
+          <span class="touchSpacer"></span>
+          <button type="button" class="touchBtn" data-action="right">→</button>
+          <span class="touchSpacer"></span>
+          <button type="button" class="touchBtn" data-action="down">↓</button>
+          <span class="touchSpacer"></span>
+        </div>
+      </div>
+      <div class="touchControls__right">
+        <div class="touchRow">
+          <button type="button" class="touchBtn touchBtn--wide" data-action="esc">Esc</button>
+          <button type="button" class="touchBtn touchBtn--wide" data-action="enter">Enter</button>
+        </div>
+      </div>
+    `;
+
+    els.screen.appendChild(root);
+
+    const map = {
+      up: "ArrowUp",
+      down: "ArrowDown",
+      left: "ArrowLeft",
+      right: "ArrowRight",
+      enter: "Enter",
+      esc: "Escape",
+    };
+
+    const buttons = root.querySelectorAll("button[data-action]");
+    buttons.forEach((btn) => {
+      const action = btn.getAttribute("data-action");
+      const key = map[action] || "";
+      bindTouchButton(btn, key);
+    });
+  }
 
   function setStatus(text) {
     els.status.textContent = text;
@@ -246,6 +358,8 @@
   // Initial state
   setStatus("Chưa chọn file.");
   enableRunControls(false, false);
+
+  ensureDosTouchControls();
 
   // Auto-load default bundle if present
   void (async () => {
