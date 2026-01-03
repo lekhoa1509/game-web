@@ -9,3 +9,12 @@ services:
       # Render sits behind a reverse proxy/load balancer.
       - key: TRUST_PROXY
         value: "1"
+
+      # Required for listing Drive folders / downloading via Drive API.
+      # Set this in Render dashboard (kept secret).
+      - key: DRIVE_API_KEY
+        sync: false
+
+      # Safety: keep off unless you explicitly want to allow ?key=... from non-local requests.
+      - key: ALLOW_QUERY_KEY
+        value: "0"

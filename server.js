@@ -48,6 +48,9 @@ app.disable("x-powered-by");
 
 const PORT = Number(process.env.PORT) || 5173;
 const DRIVE_API_KEY = String(process.env.DRIVE_API_KEY || "").trim();
+const ALLOW_QUERY_KEY = String(process.env.ALLOW_QUERY_KEY || "").trim();
+const ALLOW_QUERY_KEY_ENABLED =
+  ALLOW_QUERY_KEY === "1" || ALLOW_QUERY_KEY.toLowerCase() === "true";
 
 function isLoopbackIp(ip) {
   const s = String(ip || "").trim();
@@ -66,7 +69,7 @@ function getDriveApiKeyForRequest(req) {
 
   // Local-only fallback: allow passing key via query/header when calling from localhost.
   // This is meant for local dev so users don't have to restart server after editing .env.
-  if (!isLoopbackIp(req.ip)) return "";
+  if (!ALLOW_QUERY_KEY_ENABLED && !isLoopbackIp(req.ip)) return "";
 
   const fromQuery = typeof req.query?.key === "string" ? req.query.key : "";
   const fromHeader =
@@ -75,6 +78,19 @@ function getDriveApiKeyForRequest(req) {
       : "";
 
   return String(fromQuery || fromHeader || "").trim();
+}
+
+function sendMissingDriveApiKey(res, { asJson }) {
+  const message =
+    "Thiếu DRIVE_API_KEY trên server. Hãy set DRIVE_API_KEY (Render: Environment Variables; local: .env) rồi restart/redeploy.";
+  const details = {
+    code: "MISSING_DRIVE_API_KEY",
+    error: message,
+    hint: "Render: set DRIVE_API_KEY trong dashboard rồi redeploy. Local: tạo file .env theo .env.example. (Tạm thời/dev-only: set ALLOW_QUERY_KEY=1 để cho phép ?key=... từ remote.)",
+  };
+
+  if (asJson) return res.status(503).json(details);
+  return res.status(503).send(message);
 }
 
 // If deployed behind a reverse proxy (Cloudflare/Nginx/Vercel/etc.), enable this.
@@ -274,6 +290,7 @@ app.get("/api/health", (req, res) => {
     ok: true,
     driveKeyConfigured: !!DRIVE_API_KEY,
     localQueryKeySupported: true,
+    allowQueryKeyEnabled: ALLOW_QUERY_KEY_ENABLED,
   });
 });
 
@@ -312,11 +329,7 @@ app.get("/api/drive/folder/:id", rateLimit, async (req, res) => {
   try {
     const key = getDriveApiKeyForRequest(req);
     if (!key) {
-      res.status(500).json({
-        error:
-          "Thiếu DRIVE_API_KEY trên server. Cách 1: tạo file .env và set DRIVE_API_KEY=YOUR_KEY rồi restart server. Cách 2 (localhost): gọi /api/drive/*?key=YOUR_KEY.",
-      });
-      return;
+      return sendMissingDriveApiKey(res, { asJson: true });
     }
 
     const folderId = String(req.params.id || "").trim();
@@ -388,12 +401,7 @@ app.get("/api/drive/file/:id", rateLimit, async (req, res) => {
   try {
     const key = getDriveApiKeyForRequest(req);
     if (!key) {
-      res
-        .status(500)
-        .send(
-          "Thiếu DRIVE_API_KEY trên server. Cách 1: tạo file .env và set DRIVE_API_KEY=YOUR_KEY rồi restart server. Cách 2 (localhost): gọi /api/drive/*?key=YOUR_KEY."
-        );
-      return;
+      return sendMissingDriveApiKey(res, { asJson: false });
     }
 
     const fileId = String(req.params.id || "").trim();

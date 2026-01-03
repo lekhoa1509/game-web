@@ -99,6 +99,19 @@ Lưu ý:
 Repo có sẵn file `render.yaml`. Trên Render chọn **New** → **Blueprint** để import.
 Sau đó nhớ set `DRIVE_API_KEY` trong Environment Variables.
 
+### Troubleshooting: Proxy báo "Thiếu DRIVE_API_KEY" (503)
+
+Folder Drive (list files) **bắt buộc** cần `DRIVE_API_KEY` ở server.
+
+- Nếu bạn deploy lên Render:
+  - Vào Render → Service → **Environment** → add `DRIVE_API_KEY`
+  - **Redeploy** service
+  - Check nhanh: mở `/api/health` và xem `driveKeyConfigured: true`
+- Nếu bạn chạy local:
+  - Tạo file `.env` theo `.env.example` rồi set `DRIVE_API_KEY=...`, restart `npm start`
+
+Ghi chú: Có option `ALLOW_QUERY_KEY=1` để cho phép gọi `/api/drive/*?key=...` từ remote, nhưng **không khuyến nghị** khi public vì có thể làm lộ key.
+
 ### 2) Cấu hình trên client
 
 Mặc định đã bật proxy:
