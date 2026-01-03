@@ -5,6 +5,9 @@
 # Node
 node_modules/
 
+# Large emulator bundles (keep local, don’t commit)
+platforms/**/bios/*.jsdos
+
 # OS
 .DS_Store
 Thumbs.db
