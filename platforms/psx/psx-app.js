@@ -2545,14 +2545,144 @@
     btn.addEventListener("lostpointercapture", onUp);
   }
 
+  function bindTouchStick(stickEl, knobEl, getRetroarchKeyForAction) {
+    let activePointerId = null;
+    let activeKeys = { up: "", down: "", left: "", right: "" };
+    let activePressed = { up: false, down: false, left: false, right: false };
+
+    const releaseAll = () => {
+      for (const a of ["up", "down", "left", "right"]) {
+        if (!activePressed[a]) continue;
+        releaseBrowserKey(activeKeys[a]);
+        activePressed[a] = false;
+      }
+      if (knobEl) knobEl.style.transform = "translate(0px, 0px)";
+    };
+
+    const update = (clientX, clientY) => {
+      const r = stickEl.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const dx = clientX - cx;
+      const dy = clientY - cy;
+      const radius = Math.max(1, Math.min(r.width, r.height) / 2);
+
+      const nx = dx / radius;
+      const ny = dy / radius;
+
+      const dead = 0.35;
+      const wantLeft = nx < -dead;
+      const wantRight = nx > dead;
+      const wantUp = ny < -dead;
+      const wantDown = ny > dead;
+
+      const next = {
+        up: wantUp,
+        down: wantDown,
+        left: wantLeft,
+        right: wantRight,
+      };
+
+      // Refresh keys from latest keybinds.
+      for (const a of ["up", "down", "left", "right"]) {
+        const raKey = getRetroarchKeyForAction(a);
+        activeKeys[a] = retroarchKeyToBrowserKey(raKey);
+      }
+
+      for (const a of ["up", "down", "left", "right"]) {
+        if (next[a] === activePressed[a]) continue;
+        activePressed[a] = next[a];
+        if (next[a]) pressBrowserKey(activeKeys[a]);
+        else releaseBrowserKey(activeKeys[a]);
+      }
+
+      if (knobEl) {
+        const max = Math.max(6, Math.min(22, radius * 0.28));
+        const tx = Math.max(-max, Math.min(max, nx * max));
+        const ty = Math.max(-max, Math.min(max, ny * max));
+        knobEl.style.transform = `translate(${tx.toFixed(0)}px, ${ty.toFixed(
+          0
+        )}px)`;
+      }
+    };
+
+    const onDown = (e) => {
+      if (!e || (e.pointerType && e.pointerType === "mouse")) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      try {
+        stickEl.setPointerCapture(e.pointerId);
+      } catch {
+        // ignore
+      }
+
+      activePointerId = e.pointerId;
+      stickEl.classList.add("touchBtn--active");
+      update(e.clientX, e.clientY);
+    };
+
+    const onMove = (e) => {
+      if (activePointerId == null) return;
+      if (!e || (e.pointerId != null && e.pointerId !== activePointerId))
+        return;
+      e.preventDefault();
+      e.stopPropagation();
+      update(e.clientX, e.clientY);
+    };
+
+    const onUp = (e) => {
+      if (activePointerId == null) return;
+      if (e && e.pointerId != null && e.pointerId !== activePointerId) return;
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      activePointerId = null;
+      stickEl.classList.remove("touchBtn--active");
+      releaseAll();
+    };
+
+    stickEl.addEventListener("pointerdown", onDown);
+    stickEl.addEventListener("pointermove", onMove);
+    stickEl.addEventListener("pointerup", onUp);
+    stickEl.addEventListener("pointercancel", onUp);
+    stickEl.addEventListener("lostpointercapture", onUp);
+  }
+
   function ensurePsxTouchControls() {
     if (!els.screenWrap) return;
     if (els.screenWrap.querySelector(".touchControls")) return;
 
+    if (!els.screenWrap.querySelector(".touchShoulders")) {
+      const shoulders = document.createElement("div");
+      shoulders.className = "touchShoulders";
+      shoulders.innerHTML = `
+        <div class="touchShoulders__side touchShoulders__left touchRow" aria-label="L2/L1">
+          <button type="button" class="touchBtn touchBtn--shoulder" data-action="l" data-label="L2">L2</button>
+          <button type="button" class="touchBtn touchBtn--shoulder" data-action="l" data-label="L1">L1</button>
+        </div>
+        <div class="touchShoulders__side touchShoulders__right touchRow" aria-label="R1/R2">
+          <button type="button" class="touchBtn touchBtn--shoulder" data-action="r" data-label="R2">R2</button>
+          <button type="button" class="touchBtn touchBtn--shoulder" data-action="r" data-label="R1">R1</button>
+        </div>
+      `;
+      els.screenWrap.appendChild(shoulders);
+
+      const shoulderButtons = shoulders.querySelectorAll("button[data-action]");
+      shoulderButtons.forEach((btn) => {
+        const action = btn.getAttribute("data-action");
+        bindTouchButton(btn, () => String(keybinds[action] || ""));
+      });
+    }
+
     const root = document.createElement("div");
-    root.className = "touchControls";
+    root.className = "touchControls touchControls--psx";
     root.innerHTML = `
       <div class="touchControls__left">
+        <div class="touchStick" data-stick="left" aria-label="Analog stick">
+          <div class="touchStick__knob" aria-hidden="true"></div>
+        </div>
         <div class="dpad" aria-label="D-pad">
           <span class="touchSpacer"></span>
           <button type="button" class="touchBtn" data-action="up">↑</button>
@@ -2565,25 +2695,34 @@
           <span class="touchSpacer"></span>
         </div>
       </div>
-      <div class="touchControls__right">
-        <div class="touchRow">
-          <button type="button" class="touchBtn touchBtn--wide" data-action="l">L1</button>
-          <button type="button" class="touchBtn touchBtn--wide" data-action="r">R1</button>
-        </div>
-        <div class="touchAB" aria-label="Buttons">
-          <button type="button" class="touchBtn" data-action="y">□</button>
-          <button type="button" class="touchBtn" data-action="x">△</button>
-          <button type="button" class="touchBtn" data-action="a">X</button>
-          <button type="button" class="touchBtn" data-action="b">O</button>
-        </div>
+      <div class="touchControls__center" aria-label="Start/Select">
         <div class="touchRow">
           <button type="button" class="touchBtn touchBtn--wide" data-action="select">Select</button>
           <button type="button" class="touchBtn touchBtn--wide" data-action="start">Start</button>
         </div>
       </div>
+      <div class="touchControls__right" aria-label="Buttons">
+        <div class="touchDiamond">
+          <span class="touchSpacer"></span>
+          <button type="button" class="touchBtn" data-action="x">△</button>
+          <span class="touchSpacer"></span>
+          <button type="button" class="touchBtn" data-action="y">□</button>
+          <span class="touchSpacer"></span>
+          <button type="button" class="touchBtn" data-action="b">○</button>
+          <span class="touchSpacer"></span>
+          <button type="button" class="touchBtn" data-action="a">✕</button>
+          <span class="touchSpacer"></span>
+        </div>
+      </div>
     `;
 
     els.screenWrap.appendChild(root);
+
+    const stick = root.querySelector(".touchStick");
+    const knob = root.querySelector(".touchStick__knob");
+    if (stick) {
+      bindTouchStick(stick, knob, (action) => String(keybinds[action] || ""));
+    }
 
     const buttons = root.querySelectorAll("button[data-action]");
     buttons.forEach((btn) => {
