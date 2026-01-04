@@ -490,14 +490,15 @@ button:disabled {
 .touchControls__right {
   justify-content: flex-end;
   gap: 12px;
-  flex-wrap: wrap;
-}
+/* Show touch overlay only on mobile-like devices (avoid desktop/laptop). */
+@media (hover: none) and (pointer: coarse) and (max-width: 1024px) {
+  .touchControls {
+    display: grid;
+  }
 
-.dpad {
-  display: grid;
-  grid-template-columns: 56px 56px 56px;
-  grid-template-rows: 56px 56px 56px;
-  gap: 8px;
+  .touchShoulders {
+    display: flex;
+  }
 }
 
 .touchSpacer {
