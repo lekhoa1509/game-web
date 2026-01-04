@@ -434,6 +434,21 @@
   let keybinds = loadKeybinds();
   renderKeyHint(keybinds);
 
+  function syncGamepadKeybinds(binds) {
+    try {
+      if (
+        window.GameWebGamepad &&
+        typeof window.GameWebGamepad.setBinds === "function"
+      ) {
+        window.GameWebGamepad.setBinds(binds);
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  syncGamepadKeybinds(keybinds);
+
   let keySettingsPendingAction = null;
   let keySettingsDraft = { ...keybinds };
 
@@ -1603,6 +1618,7 @@
       keybinds = { ...keySettingsDraft };
       saveKeybinds(keybinds);
       renderKeyHint(keybinds);
+      syncGamepadKeybinds(keybinds);
       closeKeySettings();
       setStatus("Đã lưu cài đặt nút.");
     });
