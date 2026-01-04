@@ -490,15 +490,19 @@ button:disabled {
 .touchControls__right {
   justify-content: flex-end;
   gap: 12px;
-/* Show touch overlay only on mobile-like devices (avoid desktop/laptop). */
-@media (hover: none) and (pointer: coarse) and (max-width: 1024px) {
-  .touchControls {
-    display: grid;
-  }
+}
 
-  .touchShoulders {
-    display: flex;
-  }
+/*
+  Show touch overlay only on mobile (automatic).
+  We avoid screen-size breakpoints because device viewports vary a lot.
+  The `isMobile` class is set by platforms/shared/device.js.
+*/
+html.isMobile .touchControls {
+  display: grid;
+}
+
+html.isMobile .touchShoulders {
+  display: flex;
 }
 
 .touchSpacer {
@@ -553,6 +557,14 @@ button:disabled {
   display: grid;
   place-items: center;
 }
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-weight: 700;
+  touch-action: none;
 
 .touchStick__knob {
   width: 56px;
@@ -593,15 +605,6 @@ button:disabled {
   margin-top: 56px;
 }
 
-  padding: 0;
-  font-weight: 700;
-  touch-action: none;
-}
-
-  .touchShoulders {
-    display: flex;
-  }
-
 .touchBtn--wide {
   width: 88px;
 }
@@ -621,12 +624,6 @@ button:disabled {
 .touchRow {
   display: flex;
   gap: 8px;
-}
-
-@media (pointer: coarse) {
-  .touchControls {
-    display: grid;
-  }
 }
 
 .screenBar {
