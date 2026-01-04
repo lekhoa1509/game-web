@@ -1823,6 +1823,20 @@
 
   function ensureCartTouchControls() {
     if (!els.screenWrap) return;
+
+    const isMobile =
+      !!(window.GameWebDevice && window.GameWebDevice.isMobile) ||
+      document.documentElement.classList.contains("isMobile");
+
+    if (!isMobile) {
+      try {
+        els.screenWrap.querySelector(".touchControls")?.remove();
+      } catch {
+        // ignore
+      }
+      return;
+    }
+
     if (els.screenWrap.querySelector(".touchControls")) return;
 
     const root = document.createElement("div");

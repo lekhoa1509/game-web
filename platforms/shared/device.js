@@ -10,7 +10,7 @@
 
   const isUaMobile =
     !!(uaData && uaData.mobile) ||
-    /Android|iPhone|iPad|iPod|Windows Phone|webOS|Mobile/i.test(ua);
+    /Android|iPhone|iPad|iPod|Windows Phone|webOS/i.test(ua);
 
   // iPadOS 13+ often reports as "Macintosh"; detect via touch points.
   const isIpadOs = navigator.maxTouchPoints > 1 && /Macintosh/i.test(ua);
@@ -18,4 +18,7 @@
   const isMobile = isUaMobile || isIpadOs;
 
   document.documentElement.classList.toggle("isMobile", isMobile);
+
+  // Expose for platform apps (so they can hard-disable overlays on desktop).
+  window.GameWebDevice = { isMobile };
 })();

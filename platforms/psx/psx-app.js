@@ -2652,6 +2652,22 @@
 
   function ensurePsxTouchControls() {
     if (!els.screenWrap) return;
+
+    const isMobile =
+      !!(window.GameWebDevice && window.GameWebDevice.isMobile) ||
+      document.documentElement.classList.contains("isMobile");
+
+    if (!isMobile) {
+      // Hard-disable on desktop (even if CSS is cached/misapplied).
+      try {
+        els.screenWrap.querySelector(".touchControls")?.remove();
+        els.screenWrap.querySelector(".touchShoulders")?.remove();
+      } catch {
+        // ignore
+      }
+      return;
+    }
+
     if (els.screenWrap.querySelector(".touchControls")) return;
 
     if (!els.screenWrap.querySelector(".touchShoulders")) {
